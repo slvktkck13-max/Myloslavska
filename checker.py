@@ -37,11 +37,10 @@ def update_logs():
         logs = []
 
     current_status = "online" 
-    # Получаем точное время по Киеву
+    # Точное киевское время с учетом базы tzdata
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
 
     logs.append({"time": now_time, "status": current_status})
-
     logs = logs[-50:]
 
     with open(filename, "w") as f:
