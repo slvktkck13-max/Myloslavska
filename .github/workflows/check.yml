@@ -1,9 +1,11 @@
 name: Check Light Status
 
 on:
+  repository_dispatch:
+    types: [check_light]
+  workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *' # Запуск каждые 5 минут
-  workflow_dispatch: # Позволяет запускать проверку вручную кнопкой
+    - cron: '*/5 * * * *'
 
 jobs:
   check:
