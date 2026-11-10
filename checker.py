@@ -51,11 +51,10 @@ def get_tuya_token():
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
         
-        print("Tuya Token Response:", data) # Выведем ответ от Tuya в лог Actions
-        
         if data.get("success"):
             return data["result"]["access_token"]
         else:
+            print(f"Tuya Token Error: {data}")
             return None
     except Exception as e:
         print(f"Exception during token request: {e}")
@@ -83,12 +82,15 @@ def get_device_status(access_token):
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
 
-        print("Tuya Device Response:", data) # Выведем ответ по устройству в лог Actions
+        print(f"Tuya Full Response: {data}")
 
         if data.get("success"):
-            is_online = data["result"].get("online", False)
+            # Проверяем все возможные варианты получения статуса online
+            result = data.get("result", {})
+            is_online = result.get("online", False)
             return "online" if is_online else "offline"
         else:
+            print(f"Tuya Device Status Error: {data}")
             return None
     except Exception as e:
         print(f"Exception during device status request: {e}")
@@ -109,22 +111,24 @@ def update_logs():
 
     token = get_tuya_token()
     if not token:
-        print("ERROR: Could not obtain Tuya token!")
+        print("Could not obtain Tuya token")
         return
 
     current_status = get_device_status(token)
     if not current_status:
-        print("ERROR: Could not get device status!")
+        print("Could not get device status")
         return
 
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
 
+    # Уведомление при изменении статуса
     if last_status != current_status:
         if current_status == "offline":
             send_telegram_notification(f"⚠️ <b>Увага! Світло зникло!</b>\nЧас: {now_time}")
         elif current_status == "online":
             send_telegram_notification(f"🟢 <b>Світло з'явилося!</b>\nЧас: {now_time}")
 
+    # Записываем актуальный статус в историю
     logs.append({"time": now_time, "status": current_status})
     logs = logs[-50:]
 
