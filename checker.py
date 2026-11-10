@@ -7,7 +7,6 @@ import hashlib
 from zoneinfo import ZoneInfo
 import requests
 
-# Ключи из секретов GitHub
 CLIENT_ID = os.environ.get("TUYA_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("TUYA_CLIENT_SECRET")
 DEVICE_ID = os.environ.get("TUYA_DEVICE_ID")
@@ -15,7 +14,6 @@ DEVICE_ID = os.environ.get("TUYA_DEVICE_ID")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-# Базовый URL для региона Европа
 BASE_URL = "https://openapi.tuyaeu.com"
 
 def send_telegram_notification(message):
@@ -53,10 +51,11 @@ def get_tuya_token():
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
         
+        print("Tuya Token Response:", data) # Выведем ответ от Tuya в лог Actions
+        
         if data.get("success"):
             return data["result"]["access_token"]
         else:
-            print(f"Tuya Token Error: {data}")
             return None
     except Exception as e:
         print(f"Exception during token request: {e}")
@@ -84,11 +83,12 @@ def get_device_status(access_token):
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
 
+        print("Tuya Device Response:", data) # Выведем ответ по устройству в лог Actions
+
         if data.get("success"):
             is_online = data["result"].get("online", False)
             return "online" if is_online else "offline"
         else:
-            print(f"Tuya Device Status Error: {data}")
             return None
     except Exception as e:
         print(f"Exception during device status request: {e}")
@@ -109,12 +109,12 @@ def update_logs():
 
     token = get_tuya_token()
     if not token:
-        print("Could not obtain Tuya token, skipping this check.")
+        print("ERROR: Could not obtain Tuya token!")
         return
 
     current_status = get_device_status(token)
     if not current_status:
-        print("Could not get device status, skipping.")
+        print("ERROR: Could not get device status!")
         return
 
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
