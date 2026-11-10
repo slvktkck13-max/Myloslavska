@@ -39,11 +39,10 @@ def update_logs():
     else:
         logs = []
 
-    # 1. Получаем предыдущий статус из последней записи в файле (по умолчанию "online")
+    # 1. Получаем предыдущий статус из последней записи в файле
     last_status = logs[-1]["status"] if logs else "online"
 
-    # 2. Здесь получаем актуальный статус розетки (пока для теста стоит "online")
-    # В будущем здесь будет запрос к Tuya API. Если розетка недоступна -> "offline", работает -> "online"
+    # 2. Актуальный статус розетки (пока заглушка "online")
     current_status = "online" 
 
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
