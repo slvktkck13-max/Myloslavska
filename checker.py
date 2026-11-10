@@ -16,29 +16,21 @@ TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
 BASE_URL = "https://openapi.tuyaeu.com"
 
-def send_telegram_notification(message):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
-        return
-    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
-    payload = {
-        "chat_id": TELEGRAM_CHAT_ID,
-        "text": message,
-        "parse_mode": "HTML"
-    }
-    try:
-        requests.post(url, json=payload, timeout=10)
-    except Exception as e:
-        print(f"Failed to send Telegram notification: {e}")
-
 def get_tuya_token():
     try:
         t = str(int(time.time() * 1000))
+        # Для получения токена строка сообщения: client_id + t
         message = CLIENT_ID + t
         sign = hmac.new(
             CLIENT_SECRET.encode('utf-8'),
             message.encode('utf-8'),
             hashlib.sha256
         ).hexdigest().upper()
+
+        # Выводим отладочную информацию в логи Actions (секрет не показываем целиком в целях безопасности)
+        print(f"DEBUG: CLIENT_ID length = {len(CLIENT_ID)}, CLIENT_SECRET length = {len(CLIENT_SECRET)}")
+        print(f"DEBUG: Sign Message = '{message}'")
+        print(f"DEBUG: Generated Sign = '{sign}'")
 
         url = f"{BASE_URL}/v1.0/token?grant_type=1"
         headers = {
@@ -62,77 +54,12 @@ def get_tuya_token():
         print(f"Exception during token request: {e}")
         return None
 
-def get_device_status(access_token):
-    try:
-        t = str(int(time.time() * 1000))
-        message = CLIENT_ID + access_token + t
-        sign = hmac.new(
-            CLIENT_SECRET.encode('utf-8'),
-            message.encode('utf-8'),
-            hashlib.sha256
-        ).hexdigest().upper()
-
-        url = f"{BASE_URL}/v1.0/devices/{DEVICE_ID}"
-        headers = {
-            "client_id": CLIENT_ID,
-            "access_token": access_token,
-            "sign": sign,
-            "t": t,
-            "sign_method": "HMAC-SHA256"
-        }
-
-        response = requests.get(url, headers=headers, timeout=10)
-        data = response.json()
-
-        print("Tuya Full Response:", data)
-
-        if data.get("success"):
-            result = data.get("result", {})
-            is_online = result.get("online", False)
-            return "online" if is_online else "offline"
-        else:
-            print(f"Tuya Device Status Error: {data}")
-            return None
-    except Exception as e:
-        print(f"Exception during device status request: {e}")
-        return None
-
 def update_logs():
-    filename = "logs.json"
-    if os.path.exists(filename):
-        try:
-            with open(filename, "r") as f:
-                logs = json.load(f)
-        except Exception:
-            logs = []
-    else:
-        logs = []
-
-    last_status = logs[-1]["status"] if logs else "online"
-
     token = get_tuya_token()
     if not token:
         print("Could not obtain Tuya token")
         return
-
-    current_status = get_device_status(token)
-    if not current_status:
-        print("Could not get device status")
-        return
-
-    now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
-
-    if last_status != current_status:
-        if current_status == "offline":
-            send_telegram_notification(f"⚠️ <b>Увага! Світло зникло!</b>\nЧас: {now_time}")
-        elif current_status == "online":
-            send_telegram_notification(f"🟢 <b>Світло з'явилося!</b>\nЧас: {now_time}")
-
-    logs.append({"time": now_time, "status": current_status})
-    logs = logs[-50:]
-
-    with open(filename, "w") as f:
-        json.dump(logs, f, indent=2)
+    print("Success! Token obtained.")
 
 if __name__ == "__main__":
     update_logs()
