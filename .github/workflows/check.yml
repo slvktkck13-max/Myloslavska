@@ -29,6 +29,8 @@ jobs:
           TUYA_CLIENT_ID: ${{ secrets.TUYA_CLIENT_ID }}
           TUYA_CLIENT_SECRET: ${{ secrets.TUYA_CLIENT_SECRET }}
           TUYA_DEVICE_ID: ${{ secrets.TUYA_DEVICE_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python checker.py
 
       - name: Commit and push changes
