@@ -2,14 +2,13 @@ import datetime
 import json
 import os
 import time
+from zoneinfo import ZoneInfo
 import requests
 
-# Ключи берутся из секретов GitHub
 CLIENT_ID = os.environ.get("TUYA_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("TUYA_CLIENT_SECRET")
 DEVICE_ID = os.environ.get("TUYA_DEVICE_ID")
 
-# Базовый URL для регионов Европа (Tuya Cloud)
 BASE_URL = "https://openapi.tuyaeu.com"
 
 def get_tuya_token():
@@ -38,11 +37,11 @@ def update_logs():
         logs = []
 
     current_status = "online" 
-    now_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Получаем точное время по Киеву
+    now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
 
     logs.append({"time": now_time, "status": current_status})
 
-    # Сохраняем только последние 50 записей, чтобы файл не разрастался
     logs = logs[-50:]
 
     with open(filename, "w") as f:
