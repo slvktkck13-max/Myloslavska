@@ -7,12 +7,12 @@ import hashlib
 from zoneinfo import ZoneInfo
 import requests
 
-CLIENT_ID = os.environ.get("TUYA_CLIENT_ID")
-CLIENT_SECRET = os.environ.get("TUYA_CLIENT_SECRET")
-DEVICE_ID = os.environ.get("TUYA_DEVICE_ID")
+CLIENT_ID = os.environ.get("TUYA_CLIENT_ID", "").strip()
+CLIENT_SECRET = os.environ.get("TUYA_CLIENT_SECRET", "").strip()
+DEVICE_ID = os.environ.get("TUYA_DEVICE_ID", "").strip()
 
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
 
 BASE_URL = "https://openapi.tuyaeu.com"
 
@@ -51,6 +51,8 @@ def get_tuya_token():
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
         
+        print("Tuya Token Response:", data)
+        
         if data.get("success"):
             return data["result"]["access_token"]
         else:
@@ -82,10 +84,9 @@ def get_device_status(access_token):
         response = requests.get(url, headers=headers, timeout=10)
         data = response.json()
 
-        print(f"Tuya Full Response: {data}")
+        print("Tuya Full Response:", data)
 
         if data.get("success"):
-            # Проверяем все возможные варианты получения статуса online
             result = data.get("result", {})
             is_online = result.get("online", False)
             return "online" if is_online else "offline"
@@ -121,14 +122,12 @@ def update_logs():
 
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
 
-    # Уведомление при изменении статуса
     if last_status != current_status:
         if current_status == "offline":
             send_telegram_notification(f"⚠️ <b>Увага! Світло зникло!</b>\nЧас: {now_time}")
         elif current_status == "online":
             send_telegram_notification(f"🟢 <b>Світло з'явилося!</b>\nЧас: {now_time}")
 
-    # Записываем актуальный статус в историю
     logs.append({"time": now_time, "status": current_status})
     logs = logs[-50:]
 
