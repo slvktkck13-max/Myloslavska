@@ -9,21 +9,24 @@ CLIENT_ID = os.environ.get("TUYA_CLIENT_ID")
 CLIENT_SECRET = os.environ.get("TUYA_CLIENT_SECRET")
 DEVICE_ID = os.environ.get("TUYA_DEVICE_ID")
 
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
+
 BASE_URL = "https://openapi.tuyaeu.com"
 
-def get_tuya_token():
+def send_telegram_notification(message):
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+    url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": message,
+        "parse_mode": "HTML"
+    }
     try:
-        t = str(int(time.time() * 1000))
-        url = f"{BASE_URL}/v1.0/token?grant_type=1"
-        headers = {
-            "client_id": CLIENT_ID,
-            "sign": "1",
-            "t": t,
-            "sign_method": "HMAC-SHA256"
-        }
-        return True
+        requests.post(url, json=payload, timeout=10)
     except Exception as e:
-        return False
+        print(f"Failed to send Telegram notification: {e}")
 
 def update_logs():
     filename = "logs.json"
@@ -36,10 +39,23 @@ def update_logs():
     else:
         logs = []
 
+    # 1. Получаем предыдущий статус из последней записи в файле (по умолчанию "online")
+    last_status = logs[-1]["status"] if logs else "online"
+
+    # 2. Здесь получаем актуальный статус розетки (пока для теста стоит "online")
+    # В будущем здесь будет запрос к Tuya API. Если розетка недоступна -> "offline", работает -> "online"
     current_status = "online" 
-    # Точное киевское время с учетом базы tzdata
+
     now_time = datetime.datetime.now(ZoneInfo("Europe/Kyiv")).strftime("%Y-%m-%d %H:%M:%S")
 
+    # 3. УВЕДОМЛЕНИЕ ОТПРАВЛЯЕТСЯ ТОЛЬКО ПРИ ИЗМЕНЕНИИ СТАТУСА
+    if last_status != current_status:
+        if current_status == "offline":
+            send_telegram_notification(f"⚠️ <b>Увага! Світло зникло!</b>\nЧас: {now_time}")
+        elif current_status == "online":
+            send_telegram_notification(f"🟢 <b>Світло з'явилося!</b>\nЧас: {now_time}")
+
+    # Записываем свежий статус в историю
     logs.append({"time": now_time, "status": current_status})
     logs = logs[-50:]
 
