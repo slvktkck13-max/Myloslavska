@@ -36,3 +36,4 @@ jobs:
         with:
           commit_message: "Auto-update light status log"
           file_pattern: logs.json
+          branch: main
