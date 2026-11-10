@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Svitlo Monitor Mini App</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Telegram WebApp JS SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
     <script>
@@ -24,7 +20,6 @@
                         accentOrange: '#ff8800',
                         glowOrange: '#ff6600',
                         accentBlue: '#5856d6',
-                        accentRed: '#ff453a',
                         textMuted: '#8e8e93'
                     },
                     fontFamily: {
@@ -35,82 +30,39 @@
         }
     </script>
     <style>
-        body {
-            background-color: #111215;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-        }
-
-        /* Glowing Effects */
-        .glow-orange {
-            box-shadow: 0 0 25px rgba(255, 136, 0, 0.5), inset 0 0 10px rgba(255, 136, 0, 0.4);
-        }
-        .glow-orange-lg {
-            box-shadow: 0 0 45px rgba(255, 120, 0, 0.6);
-        }
-        .glow-dark {
-            box-shadow: 0 0 15px rgba(88, 86, 214, 0.2);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #2a2b34;
-            border-radius: 4px;
-        }
-
-        /* Animated Pulsing Dot */
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(0.95); }
-        }
-        .animate-glow {
-            animation: pulseGlow 2.5s infinite ease-in-out;
-        }
+        body { background-color: #111215; color: #ffffff; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+        .glow-orange { box-shadow: 0 0 25px rgba(255, 136, 0, 0.5), inset 0 0 10px rgba(255, 136, 0, 0.4); }
+        .glow-orange-lg { box-shadow: 0 0 45px rgba(255, 120, 0, 0.6); }
+        .glow-dark { box-shadow: 0 0 15px rgba(88, 86, 214, 0.2); }
+        @keyframes pulseGlow { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }
+        .animate-glow { animation: pulseGlow 2.5s infinite ease-in-out; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between max-w-md mx-auto relative overflow-x-hidden pb-24">
 
-    <!-- Header / Top Bar -->
+    <!-- Header -->
     <header class="p-4 flex items-center justify-between border-b border-borderSubtle/50 bg-darkBg/80 backdrop-blur sticky top-0 z-40">
         <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center font-bold text-black text-sm shadow-md">
-                ⚡
-            </div>
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center font-bold text-black text-sm">⚡</div>
             <div>
-                <h1 class="text-sm font-bold leading-tight flex items-center gap-1.5">
-                    4U Svitlo Monitor <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i>
-                </h1>
-                <p class="text-[10px] text-textMuted">Моніторинг онлайн</p>
+                <h1 class="text-sm font-bold leading-tight">Myloslavska Svitlo <i class="fa-solid fa-lightbulb text-amber-400 text-xs"></i></h1>
+                <p id="connectionStatus" class="text-[10px] text-textMuted">Завантаження даних...</p>
             </div>
         </div>
-
-        <!-- Simulation Toggle Switch for Demo -->
-        <button id="togglePowerBtn" onclick="togglePowerStatus()" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-borderSubtle hover:bg-neutral-800 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 transition">
-            <i class="fa-solid fa-rotate"></i>
-            <span id="toggleBtnText">Тест: Вимкнути</span>
+        <button onclick="loadRealData()" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-borderSubtle hover:bg-neutral-800 text-amber-400 border border-amber-500/30 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-rotate"></i> Оновити
         </button>
     </header>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT -->
     <main class="p-4 space-y-4 flex-1">
-
-        <!-- TAB 1: ЗАРАЗ (Current Status Dashboard) -->
         <div id="tab-zaraz" class="tab-content space-y-4">
             
-            <!-- Hero Building / 3D Icon Graphic Header -->
+            <!-- Graphic Header -->
             <div class="relative w-full h-36 bg-gradient-to-b from-neutral-900 to-cardBg rounded-2xl overflow-hidden border border-borderSubtle flex items-center justify-center">
-                <!-- Decorative background elements -->
-                <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ff8800_1px,transparent_1px)] [background-size:16px_16px]"></div>
-                
-                <!-- Stylized Isometric House Icon with Glow -->
                 <div class="relative z-10 flex flex-col items-center">
                     <div id="houseIconBg" class="w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1 transition-all duration-500">
-                        <i id="houseIcon" class="fa-solid fa-city text-4xl text-amber-400 transition-all duration-500 filter drop-shadow-[0_0_12px_rgba(255,136,0,0.8)]"></i>
+                        <i id="houseIcon" class="fa-solid fa-city text-4xl text-amber-400"></i>
                     </div>
                 </div>
             </div>
@@ -118,235 +70,60 @@
             <!-- Main Status Card -->
             <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle shadow-xl relative overflow-hidden">
                 <div class="flex items-center gap-4">
-                    <!-- Glow Indicator Circle -->
                     <div class="relative flex-shrink-0">
                         <div id="statusGlowRing" class="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 glow-orange glow-orange-lg animate-glow flex items-center justify-center transition-all duration-500">
                             <div class="w-6 h-6 rounded-full bg-white/90 shadow-inner"></div>
                         </div>
                     </div>
-
-                    <!-- Status Text -->
                     <div class="flex-1">
-                        <h2 id="statusTitle" class="text-2xl font-extrabold tracking-tight text-white transition-all">
-                            Світло є
-                        </h2>
-                        <p id="statusSubtext" class="text-xs text-textMuted font-medium mt-0.5">
-                            вже 45 хв • з 11:45
-                        </p>
+                        <h2 id="statusTitle" class="text-2xl font-extrabold tracking-tight text-white">Перевірка...</h2>
+                        <p id="statusSubtext" class="text-xs text-textMuted font-medium mt-0.5">Очікування даних з розетки</p>
                     </div>
                 </div>
 
-                <!-- Emergency Warning Badge -->
-                <div id="warningBadge" class="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2.5">
-                    <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-0.5 text-sm"></i>
-                    <p class="text-xs text-amber-200 font-medium leading-snug">
-                        Діють екстрені відключення. Графік може не збігатися.
-                    </p>
-                </div>
-
-                <!-- Voltage & Last Update Info Row -->
                 <div class="mt-4 pt-3 border-t border-borderSubtle/60 flex items-center justify-between text-xs">
                     <div class="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-darkBg border border-borderSubtle text-amber-400 font-semibold">
                         <i class="fa-solid fa-plug text-xs"></i>
-                        <span id="voltageVal">213 В</span>
+                        <span id="voltageVal">Tuya Cloud</span>
                     </div>
-                    <span id="lastUpdated" class="text-textMuted">Графік оновлено о 12:30</span>
+                    <span id="lastUpdated" class="text-textMuted">Щойно</span>
                 </div>
             </div>
 
-            <!-- TODAY STATS CARD -->
-            <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle shadow-xl space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold uppercase tracking-wider text-textMuted">СЬОГОДНІ, 10.11</span>
-                    <span class="text-[11px] px-2 py-0.5 rounded bg-darkBg border border-borderSubtle text-textMuted flex items-center gap-1">
-                        <i class="fa-solid fa-chart-simple text-[10px]"></i> Останній графік
-                    </span>
-                </div>
-
-                <!-- 24-Hour Timeline Bar -->
-                <div class="space-y-1.5">
-                    <div class="relative h-6 w-full bg-darkBg rounded-xl p-1 border border-borderSubtle/80 flex items-center gap-0.5 overflow-hidden">
-                        <!-- Timeline Segments (Generated dynamically via JS or HTML) -->
-                        <div class="h-full bg-amber-500/90 rounded-l-md transition-all duration-500" style="width: 48%; shadow: 0 0 8px rgba(255,136,0,0.5);" title="00:00 - 11:30 (Світло)"></div>
-                        <div class="h-full bg-indigo-600/80 transition-all duration-500" style="width: 12%;" title="11:30 - 14:15 (Немає)"></div>
-                        <div class="h-full bg-amber-500/90 rounded-r-md transition-all duration-500" style="width: 40%;" title="14:15 - 24:00 (Світло)"></div>
-
-                        <!-- Current Time Indicator Needle -->
-                        <div class="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_#ffffff] z-10" style="left: 52%;"></div>
-                    </div>
-
-                    <!-- Hours markers -->
-                    <div class="flex justify-between text-[10px] text-textMuted font-mono px-1">
-                        <span>00</span>
-                        <span>06</span>
-                        <span>12</span>
-                        <span>18</span>
-                        <span>24</span>
-                    </div>
-                </div>
-
-                <!-- Detailed Breakdown Badges -->
-                <div class="grid grid-cols-2 gap-3 pt-1">
-                    <!-- Light ON Summary -->
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle/60 space-y-1">
-                        <div class="flex items-center gap-1.5 text-xs font-medium text-amber-400">
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block shadow-[0_0_6px_#ff8800]"></span>
-                            Світло було
-                        </div>
-                        <div class="text-sm font-bold text-white">
-                            <span id="lightOnTime">10 год 26 хв</span>
-                            <span id="lightOnPercent" class="text-xs text-textMuted font-normal block sm:inline"> • 83%</span>
-                        </div>
-                    </div>
-
-                    <!-- Light OFF Summary -->
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle/60 space-y-1">
-                        <div class="flex items-center gap-1.5 text-xs font-medium text-indigo-400">
-                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 inline-block"></span>
-                            Світла не було
-                        </div>
-                        <div class="text-sm font-bold text-white">
-                            <span id="lightOffTime">2 год 8 хв</span>
-                            <span id="lightOffPercent" class="text-xs text-textMuted font-normal block sm:inline"> • 17%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Action Info / Notification Alert Config -->
-            <div class="p-4 rounded-2xl bg-cardBg border border-borderSubtle flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-                        <i class="fa-regular fa-bell"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-white">Сповіщення бота</h4>
-                        <p class="text-[11px] text-textMuted">Звук при зміні стану розетки</p>
-                    </div>
-                </div>
-                <label class="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" checked class="sr-only peer">
-                    <div class="w-11 h-6 bg-darkBg peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
-                </label>
-            </div>
-        </div>
-
-        <!-- TAB 2: ГРАФІК (Schedule Tab) -->
-        <div id="tab-grafik" class="tab-content hidden space-y-4">
-            <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-base font-bold">Графік відключень</h3>
-                    <span class="text-xs text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">Черга 3.1</span>
-                </div>
-                
-                <p class="text-xs text-textMuted">Плановий розклад відключень електроенергії на сьогодні:</p>
-
-                <!-- Schedule List -->
-                <div class="space-y-2.5">
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-                            <span class="text-xs font-semibold">00:00 - 04:00</span>
-                        </div>
-                        <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-medium">Звітло є</span>
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-darkBg border border-amber-500/30 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-clock text-amber-400 text-sm"></i>
-                            <span class="text-xs font-semibold">14:00 - 18:00</span>
-                        </div>
-                        <span class="text-xs text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded font-medium">Можливе відключення</span>
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-moon text-indigo-400 text-sm"></i>
-                            <span class="text-xs font-semibold">22:00 - 01:00</span>
-                        </div>
-                        <span class="text-xs text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded font-medium">Планове відключення</span>
-                    </div>
+            <!-- History log preview -->
+            <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle space-y-3">
+                <h3 class="text-sm font-bold text-textMuted uppercase tracking-wider">Останні події з розетки</h3>
+                <div id="logsContainer" class="space-y-2 text-xs text-textMuted">
+                    Завантаження історії...
                 </div>
             </div>
         </div>
 
-        <!-- TAB 3: ІСТОРІЯ (History Logs Tab) -->
+        <!-- TAB: ІСТОРІЯ -->
         <div id="tab-istoriya" class="tab-content hidden space-y-4">
             <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle space-y-4">
-                <h3 class="text-base font-bold">Журнал отключений</h3>
-
-                <div class="space-y-3">
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle flex items-center justify-between">
-                        <div>
-                            <div class="text-xs font-bold text-white">Відключення</div>
-                            <div class="text-[11px] text-textMuted">10 Листопада, 11:30 - 13:38</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-indigo-400">2 год 08 хв</span>
-                            <span class="text-[10px] text-textMuted block">Розетка OFF</span>
-                        </div>
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle flex items-center justify-between">
-                        <div>
-                            <div class="text-xs font-bold text-white">Відключення</div>
-                            <div class="text-[11px] text-textMuted">09 Листопада, 18:10 - 21:45</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-indigo-400">3 год 35 хв</span>
-                            <span class="text-[10px] text-textMuted block">Розетка OFF</span>
-                        </div>
-                    </div>
-
-                    <div class="p-3 rounded-xl bg-darkBg border border-borderSubtle flex items-center justify-between">
-                        <div>
-                            <div class="text-xs font-bold text-white">Відключення</div>
-                            <div class="text-[11px] text-textMuted">08 Листопада, 09:00 - 11:15</div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-bold text-indigo-400">2 год 15 хв</span>
-                            <span class="text-[10px] text-textMuted block">Розетка OFF</span>
-                        </div>
-                    </div>
+                <h3 class="text-base font-bold">Повний журнал подій</h3>
+                <div id="fullLogsContainer" class="space-y-2.5 text-xs">
+                    Завантаження...
                 </div>
             </div>
         </div>
 
-        <!-- TAB 4: НАЛАШТУВАННЯ (Settings Tab) -->
+        <!-- TAB: НАЛАШТУВАННЯ -->
         <div id="tab-settings" class="tab-content hidden space-y-4">
-            <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle space-y-4">
-                <h3 class="text-base font-bold">Налаштування пристрою</h3>
-                
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <label class="text-textMuted block mb-1">Назва розетки / Локації</label>
-                        <input type="text" value="Квартира (Головна розетка)" class="w-full bg-darkBg border border-borderSubtle rounded-xl p-3 text-white focus:outline-none focus:border-amber-500">
-                    </div>
-
-                    <div>
-                        <label class="text-textMuted block mb-1">Webhook URL розетки (Tuya / Home Assistant)</label>
-                        <input type="text" value="https://api.svitlo-bot.internal/ping/v1/socket_9981" class="w-full bg-darkBg border border-borderSubtle rounded-xl p-3 text-white font-mono text-[11px] focus:outline-none focus:border-amber-500" readonly>
-                    </div>
-
-                    <button class="w-full py-3 rounded-xl bg-amber-500 font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20">
-                        Зберегти налаштування
-                    </button>
-                </div>
+            <div class="bg-cardBg rounded-2xl p-5 border border-borderSubtle space-y-4 text-xs">
+                <h3 class="text-base font-bold">Конфігурація</h3>
+                <p class="text-textMuted">Дані автоматично оновлюються фоновим роботом GitHub Actions прямо з вашої розетки Tuya.</p>
             </div>
         </div>
-
     </main>
 
-    <!-- BOTTOM NAVIGATION BAR -->
+    <!-- NAVIGATION BAR -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-cardBg/95 backdrop-blur border-t border-borderSubtle p-2 z-50">
-        <div class="grid grid-cols-4 gap-1">
+        <div class="grid grid-cols-3 gap-1">
             <button onclick="switchTab('zaraz')" id="nav-zaraz" class="nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-amber-400 bg-darkBg border border-amber-500/40 transition">
                 <i class="fa-solid fa-bolt text-base"></i>
-                <span class="text-[10px] font-bold">Зараз</span>
-            </button>
-            <button onclick="switchTab('grafik')" id="nav-grafik" class="nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-textMuted hover:text-white transition">
-                <i class="fa-regular fa-calendar-days text-base"></i>
-                <span class="text-[10px] font-bold">Графік</span>
+                <span class="text-[10px] font-bold">Статус</span>
             </button>
             <button onclick="switchTab('istoriya')" id="nav-istoriya" class="nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-textMuted hover:text-white transition">
                 <i class="fa-solid fa-chart-column text-base"></i>
@@ -354,89 +131,91 @@
             </button>
             <button onclick="switchTab('settings')" id="nav-settings" class="nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-textMuted hover:text-white transition">
                 <i class="fa-solid fa-sliders text-base"></i>
-                <span class="text-[10px] font-bold">Налаштунки</span>
+                <span class="text-[10px] font-bold">Про систему</span>
             </button>
         </div>
     </nav>
 
-    <!-- JAVASCRIPT INTERACTION LOGIC -->
+    <!-- SCRIPT LOGIC TO FETCH REAL DATA -->
     <script>
-        // Initialize Telegram WebApp SDK if available
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
             window.Telegram.WebApp.expand();
         }
 
-        // State variables
-        let isPowerOn = true;
+        async function loadRealData() {
+            try {
+                // Читаем файл logs.json из вашего репозитория GitHub Pages
+                const response = await fetch('logs.json?r=' + Math.random());
+                if (!response.ok) throw new Error('Файл логів ще не створено роботом');
+                
+                const logs = await response.json();
+                if (logs.length === 0) return;
 
-        // Toggle Power Status function (Interactive Demo)
-        function togglePowerStatus() {
-            isPowerOn = !isPowerOn;
-            
+                const lastLog = logs[logs.length - 1];
+                const isOnline = lastLog.status === 'online';
+
+                updateUI(isOnline, lastLog.time, logs);
+            } catch (err) {
+                document.getElementById('connectionStatus').textContent = "Очікування першого запуску GitHub Action";
+            }
+        }
+
+        function updateUI(isOnline, timeStr, logs) {
             const glowRing = document.getElementById('statusGlowRing');
             const statusTitle = document.getElementById('statusTitle');
             const statusSubtext = document.getElementById('statusSubtext');
             const houseIcon = document.getElementById('houseIcon');
             const houseIconBg = document.getElementById('houseIconBg');
-            const voltageVal = document.getElementById('voltageVal');
-            const toggleBtnText = document.getElementById('toggleBtnText');
+            const connStatus = document.getElementById('connectionStatus');
 
-            if (isPowerOn) {
-                // LIGHT ON STATE
+            if (isOnline) {
                 glowRing.className = "w-14 h-14 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 glow-orange glow-orange-lg animate-glow flex items-center justify-center transition-all duration-500";
                 statusTitle.textContent = "Світло є";
-                statusTitle.className = "text-2xl font-extrabold tracking-tight text-white transition-all";
-                statusSubtext.textContent = "вже 1 хв • з " + getCurrentTime();
-                
-                houseIcon.className = "fa-solid fa-city text-4xl text-amber-400 transition-all duration-500 filter drop-shadow-[0_0_12px_rgba(255,136,0,0.8)]";
-                houseIconBg.className = "w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1 transition-all duration-500";
-                
-                voltageVal.textContent = "221 В";
-                toggleBtnText.textContent = "Тест: Вимкнути";
+                statusTitle.className = "text-2xl font-extrabold tracking-tight text-white";
+                statusSubtext.textContent = "Останній оновлений статус: " + timeStr;
+                houseIcon.className = "fa-solid fa-city text-4xl text-amber-400";
+                houseIconBg.className = "w-20 h-20 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-1";
+                connStatus.textContent = "Розетка в мережі (Online)";
             } else {
-                // LIGHT OFF STATE
                 glowRing.className = "w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-slate-700 glow-dark flex items-center justify-center transition-all duration-500";
                 statusTitle.textContent = "Світла немає";
-                statusTitle.className = "text-2xl font-extrabold tracking-tight text-indigo-300 transition-all";
-                statusSubtext.textContent = "вже 1 хв • з " + getCurrentTime();
-
-                houseIcon.className = "fa-solid fa-city text-4xl text-slate-600 transition-all duration-500";
-                houseIconBg.className = "w-20 h-20 rounded-2xl bg-slate-800/40 border border-slate-700 flex items-center justify-center mb-1 transition-all duration-500";
-
-                voltageVal.textContent = "0 В";
-                toggleBtnText.textContent = "Тест: Увімкнути";
+                statusTitle.className = "text-2xl font-extrabold tracking-tight text-indigo-300";
+                statusSubtext.textContent = "Зникло о: " + timeStr;
+                houseIcon.className = "fa-solid fa-city text-4xl text-slate-600";
+                houseIconBg.className = "w-20 h-20 rounded-2xl bg-slate-800/40 border border-slate-700 flex items-center justify-center mb-1";
+                connStatus.textContent = "Розетка недоступна (Offline)";
             }
-        }
 
-        // Helper to format current time
-        function getCurrentTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            return `${hours}:${minutes}`;
-        }
-
-        // Switch Tabs Logic
-        function switchTab(tabId) {
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Рендер истории
+            const container = document.getElementById('logsContainer');
+            const fullContainer = document.getElementById('fullLogsContainer');
+            let htmlLogs = '';
             
-            // Show target tab
-            const target = document.getElementById('tab-' + tabId);
-            if (target) target.classList.remove('hidden');
+            logs.slice(-5).reverse().forEach(log => {
+                const badgeColor = log.status === 'online' ? 'text-amber-400' : 'text-indigo-400';
+                htmlLogs += `<div class="flex justify-between border-b border-borderSubtle/40 py-1.5">
+                    <span>${log.time}</span>
+                    <span class="${badgeColor} font-bold">${log.status.toUpperCase()}</span>
+                </div>`;
+            });
+            container.innerHTML = htmlLogs;
+            fullContainer.innerHTML = htmlLogs;
+            document.getElementById('lastUpdated').textContent = "Оновлено: " + timeStr;
+        }
 
-            // Reset navigation button styles
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.className = "nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-textMuted hover:text-white transition";
             });
-
-            // Highlight active navigation button
-            const activeNav = document.getElementById('nav-' + tabId);
-            if (activeNav) {
-                activeNav.className = "nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-amber-400 bg-darkBg border border-amber-500/40 transition";
-            }
+            document.getElementById('nav-' + tabId).className = "nav-btn py-2 px-1 rounded-xl flex flex-col items-center gap-1 text-amber-400 bg-darkBg border border-amber-500/40 transition";
         }
+
+        // Автозагрузка при старте
+        loadRealData();
+        setInterval(loadRealData, 30000); // Проверка каждые 30 секунд
     </script>
 </body>
 </html>
